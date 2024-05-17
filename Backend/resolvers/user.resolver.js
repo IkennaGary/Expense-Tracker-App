@@ -67,7 +67,7 @@ export const userResolver = {
   Query: {
     authUser: async (_, _, context) => {
       try {
-        const { user } = await context.getUser();
+        const user = await context.getUser();
         return user;
       } catch (error) {
         console.log(`Error in authUser: ${error}`);

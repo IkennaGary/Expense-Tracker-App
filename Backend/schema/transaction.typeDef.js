@@ -23,7 +23,6 @@ export const transactionTypeDef = `#graphql
     }
 
     input createTransactionInput {
-        # userId: ID!
         description: String!
         paymentType: String!
         category: String!
