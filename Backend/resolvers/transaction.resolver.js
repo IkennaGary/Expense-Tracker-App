@@ -1,8 +1,8 @@
-import Transaction from "../model/transaction.model";
+import Transaction from "../model/transaction.model.js";
 
 export const transactionResolver = {
   Query: {
-    transactions: async (_, _, context) => {
+    transactions: async (_, args, context) => {
       try {
         const user = await context.getUser();
         if (!user) throw new Error("Unauthorized request");
