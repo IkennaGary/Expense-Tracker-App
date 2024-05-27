@@ -1,18 +1,66 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useQuery, useMutation } from "@apollo/client";
+import { GET_TRANSACTION } from "../../graphql/queries/transaction.query";
+import { UPDATE_TRANSACTION } from "../../graphql/mutations/transaction.mutation";
+import TransactionFormSkeleton from "../components/skeletons/TransactionFormSkeleton";
+import toast from "react-hot-toast";
+import { formatDate } from "../utils/formatDate";
 
 const TransactionPage = () => {
-  const [formData, setFormData] = useState({
-    description: "",
-    paymentType: "",
-    category: "",
-    amount: "",
-    location: "",
-    date: "",
+  const { id } = useParams();
+  const [retrivedData, setRetrievedData] = useState();
+  const { data, loading } = useQuery(GET_TRANSACTION, {
+    variables: {
+      transactionId: id,
+    },
   });
+  const [updateTransaction, { loading: updateLoading }] = useMutation(
+    UPDATE_TRANSACTION,
+    {
+      refetchQueries: ["GetAllTransactions"],
+    }
+  );
+  const [formData, setFormData] = useState({
+    description: data?.transaction?.description || "",
+    paymentType: data?.transaction?.paymentType || "",
+    category: retrivedData?.category || "",
+    amount: data?.transaction.amount || "",
+    location: data?.transaction?.location || "",
+    date: data?.transaction?.date || "",
+  });
+
+  useEffect(() => {
+    if (data) {
+      setFormData({
+        description: data?.transaction?.description,
+        paymentType: data?.transaction?.paymentType,
+        category: retrivedData?.category,
+        amount: data?.transaction.amount,
+        location: data?.transaction?.location,
+        date: new Date(+data?.transaction?.date).toISOString().substring(0, 10),
+      });
+    }
+  }, [data]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("formData", formData);
+    const amount = parseFloat(formData.amount);
+    try {
+      await updateTransaction({
+        variables: {
+          transactionId: id,
+          input: {
+            ...formData,
+            amount,
+          },
+        },
+      });
+      toast.success("Updated transaction");
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
   };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -22,7 +70,7 @@ const TransactionPage = () => {
     }));
   };
 
-  // if (loading) return <TransactionFormSkeleton />;
+  if (loading) return <TransactionFormSkeleton />;
 
   return (
     <div className="h-screen max-w-4xl mx-auto flex flex-col items-center">
@@ -48,7 +96,7 @@ const TransactionPage = () => {
               name="description"
               type="text"
               placeholder="Rent, Groceries, Salary, etc."
-              value={formData.description}
+              value={formData?.description}
               onChange={handleInputChange}
             />
           </div>
@@ -68,7 +116,7 @@ const TransactionPage = () => {
                 id="paymentType"
                 name="paymentType"
                 onChange={handleInputChange}
-                defaultValue={formData.paymentType}
+                defaultValue={formData?.paymentType}
               >
                 <option value={"card"}>Card</option>
                 <option value={"cash"}>Cash</option>
@@ -99,7 +147,7 @@ const TransactionPage = () => {
                 id="category"
                 name="category"
                 onChange={handleInputChange}
-                defaultValue={formData.category}
+                defaultValue={formData?.category}
               >
                 <option value={"saving"}>Saving</option>
                 <option value={"expense"}>Expense</option>
@@ -131,7 +179,7 @@ const TransactionPage = () => {
               name="amount"
               type="number"
               placeholder="150"
-              value={formData.amount}
+              value={formData?.amount}
               onChange={handleInputChange}
             />
           </div>
@@ -152,7 +200,7 @@ const TransactionPage = () => {
               name="location"
               type="text"
               placeholder="New York"
-              value={formData.location}
+              value={formData?.location}
               onChange={handleInputChange}
             />
           </div>
@@ -172,7 +220,7 @@ const TransactionPage = () => {
               className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-[11px] px-4 mb-3 leading-tight focus:outline-none
 						 focus:bg-white"
               placeholder="Select date"
-              value={formData.date}
+              value={formData?.date}
               onChange={handleInputChange}
             />
           </div>

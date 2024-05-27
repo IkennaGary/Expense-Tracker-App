@@ -1,8 +1,13 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import InputField from "../components/InputField";
+import { useMutation } from "@apollo/client";
+import { SIGNIN_USER } from "../../graphql/mutations/user.mutation";
+import toast from "react-hot-toast";
+import { GET_AUTHENTICATED_USER } from "../../graphql/queries/user.query";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [loginData, setLoginData] = useState({
     username: "",
     password: "",
@@ -16,9 +21,23 @@ const LoginPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const [signIn, { loading }] = useMutation(SIGNIN_USER, {
+    refetchQueries: ["GetAuthenticatedUser"],
+  });
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(loginData);
+    try {
+      await signIn({
+        variables: {
+          input: loginData,
+        },
+      });
+      toast.success(`Welcome back`);
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   return (

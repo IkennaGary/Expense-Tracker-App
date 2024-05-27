@@ -52,16 +52,19 @@ export const userResolver = {
       }
     },
     logout: async (_, args, context) => {
-      context.logout();
-      req.session.destroy((err) => {
-        if (err) {
-          throw err;
-        }
-        res.clearCookie("connect.sid");
-      });
-      return {
-        message: "Logged out successfully",
-      };
+      try {
+        await context.logout();
+        context.req.session.destroy((err) => {
+          if (err) throw err;
+        });
+        context.res.clearCookie("connect.sid");
+        return {
+          message: "Logged out successfully",
+        };
+      } catch (error) {
+        console.log(`Error in logging out: ${error.message}`);
+        throw new Error(error.message || "Internal server error");
+      }
     },
   },
   Query: {

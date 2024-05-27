@@ -18,8 +18,8 @@ export const transactionTypeDef = `#graphql
 
     type Mutation {
         createTransaction(input: createTransactionInput ): Transaction!
-        updateTransaction( transactionId: ID!, input: updateTransactionInput): Transaction!
-        deleteTransaction( transactionId: ID!): Transaction!
+        updateTransaction( transactionId: ID!, input: updateTransactionInput): UpdateTransactionResponse!
+        deleteTransaction( transactionId: ID!): DeleteTransactionResponse!
     }
 
     input createTransactionInput {
@@ -37,5 +37,13 @@ export const transactionTypeDef = `#graphql
         amount: Float
         location: String
         date: String
+    }
+    type DeleteTransactionResponse {
+    success: Boolean!
+    message: String!
+    }
+    type UpdateTransactionResponse {
+    success: Boolean!
+    message: String!
     }
 `;

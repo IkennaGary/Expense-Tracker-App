@@ -59,7 +59,7 @@ export const transactionResolver = {
         throw new Error(error.message || "Internal server error");
       }
     },
-    updateTransaction: async (_, { transactionId, input }) => {
+    updateTransaction: async (_, { transactionId, input }, context) => {
       try {
         if (!transactionId) {
           throw new Error("Transaction id is required");
@@ -72,13 +72,16 @@ export const transactionResolver = {
         if (!transactionExist) {
           throw new Error("Transaction does not exist");
         }
-        const transaction = await Transaction.updateOne({
-          userId: user._id,
-          _id: transactionId,
+        const transaction = await Transaction.findByIdAndUpdate(
+          { userId: user._id, _id: transactionId },
           input,
-          new: true,
-        });
-        return transaction;
+          { new: true }
+        );
+        console.log("Transaction", transaction);
+        return {
+          success: true,
+          message: "Transaction successfully updated",
+        };
       } catch (error) {
         console.log(`Error updtating transaction: ${error.message}`);
         throw new Error(error.message || "Internal server error");
@@ -97,11 +100,14 @@ export const transactionResolver = {
         }
         const user = await context.getUser();
         if (!user) throw new Error("Unauthorized request");
-        const transaction = await Transaction.deleteOne({
+        await Transaction.deleteOne({
           userId: user._id,
           _id: transactionId,
         });
-        return transaction;
+        return {
+          success: true,
+          message: "Transaction successfully deleted",
+        };
       } catch (error) {
         console.log(`Error deleting transaction: ${error}`);
         throw new Error(error.message || "Internal server error");

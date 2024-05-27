@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
@@ -5,10 +7,17 @@ import Cards from "../components/Cards";
 import TransactionForm from "../components/TransactionForm";
 
 import { MdLogout } from "react-icons/md";
+import { useMutation } from "@apollo/client";
+import { LOGOUT_USER } from "../../graphql/mutations/user.mutation.js";
+import { GET_AUTHENTICATED_USER } from "../../graphql/queries/user.query.js";
+
+import toast from "react-hot-toast";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const HomePage = () => {
+  const navigate = useNavigate();
+
   const chartData = {
     labels: ["Saving", "Expense", "Investment"],
     datasets: [
@@ -33,11 +42,23 @@ const HomePage = () => {
     ],
   };
 
-  const handleLogout = () => {
+  const [logout, { loading, error }] = useMutation(LOGOUT_USER, {
+    refetchQueries: ["GetAuthenticatedUser"],
+  });
+
+  const handleLogout = async () => {
     console.log("Logging out...");
+    try {
+      await logout();
+
+      toast.success("Logged out successfully");
+      navigate("/login");
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
-  const loading = false;
+  // const loading = false;
 
   return (
     <>
