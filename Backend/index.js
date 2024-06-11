@@ -19,8 +19,12 @@ import { mergedResolvers } from "./resolvers/index.js";
 import { mergedTypeDefs } from "./schema/index.js";
 import { connectDB } from "./db/connect.js";
 
+import job from "./cron.js";
+
 dotenv.config();
 configurePassport();
+
+job.start();
 
 const __dirname = path.resolve();
 
