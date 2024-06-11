@@ -1,4 +1,5 @@
 import Transaction from "../model/transaction.model.js";
+import User from "../model/users.model.js";
 
 export const transactionResolver = {
   Query: {
@@ -29,6 +30,35 @@ export const transactionResolver = {
         console.log(`Error getting transaction: ${error}`);
         throw new Error(error.message || "Internal server error");
       }
+    },
+    categoryStatistics: async (_, args, context) => {
+      if (!context.getUser()) throw new Error("Unauthorized");
+
+      const userId = context.getUser()._id;
+      const transactions = await Transaction.find({ userId });
+      const categoryMap = {};
+
+      // const transactions = [
+      // 	{ category: "expense", amount: 50 },
+      // 	{ category: "expense", amount: 75 },
+      // 	{ category: "investment", amount: 100 },
+      // 	{ category: "saving", amount: 30 },
+      // 	{ category: "saving", amount: 20 }
+      // ];
+
+      transactions.forEach((transaction) => {
+        if (!categoryMap[transaction.category]) {
+          categoryMap[transaction.category] = 0;
+        }
+        categoryMap[transaction.category] += transaction.amount;
+      });
+
+      // categoryMap = { expense: 125, investment: 100, saving: 50 }
+      return Object.entries(categoryMap).map(([category, totalAmount]) => ({
+        category,
+        totalAmount,
+      }));
+      // return [ { category: "expense", totalAmount: 125 }, { category: "investment", totalAmount: 100 }, { category: "saving", totalAmount: 50 } ]
     },
   },
   Mutation: {
@@ -110,6 +140,18 @@ export const transactionResolver = {
         };
       } catch (error) {
         console.log(`Error deleting transaction: ${error}`);
+        throw new Error(error.message || "Internal server error");
+      }
+    },
+  },
+  Transaction: {
+    user: async (parent, _, context) => {
+      const userId = parent.userId;
+      try {
+        const user = await User.findById(userId);
+        return user;
+      } catch (error) {
+        console.log(`Error creating transaction: ${error}`);
         throw new Error(error.message || "Internal server error");
       }
     },

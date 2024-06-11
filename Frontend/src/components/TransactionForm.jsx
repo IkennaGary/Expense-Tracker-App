@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 
 const TransactionForm = () => {
   const [createTransaction, { loading }] = useMutation(ADD_TRANSACTION, {
-    refetchQueries: ["GetAllTransactions"],
+    refetchQueries: ["GetAllTransactions", "GetCategoryStatistics"],
   });
 
   const handleSubmit = async (e) => {
@@ -20,7 +20,7 @@ const TransactionForm = () => {
       location: formData.get("location"),
       date: formData.get("date"),
     };
-    console.log("transactionData", transactionData);
+
     try {
       await createTransaction({
         variables: {

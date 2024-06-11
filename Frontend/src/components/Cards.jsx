@@ -1,9 +1,21 @@
 import { useQuery } from "@apollo/client";
 import { GET_TRANSACTIONS } from "../../graphql/queries/transaction.query";
 import Card from "./Card";
+import {
+  GET_AUTHENTICATED_USER,
+  GET_USER_AND_TRANSACTION,
+} from "../../graphql/queries/user.query";
 
 const Cards = () => {
   const { loading, data } = useQuery(GET_TRANSACTIONS);
+  const { data: authenticatedUser } = useQuery(GET_AUTHENTICATED_USER);
+  const { data: userData } = useQuery(GET_USER_AND_TRANSACTION, {
+    variables: {
+      userId: authenticatedUser?.authUser?._id,
+    },
+  });
+
+  console.log("USER DATA AND TRANSACTION", userData);
 
   return (
     <div className="w-full px-10 min-h-[40vh]">

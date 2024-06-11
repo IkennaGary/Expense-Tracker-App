@@ -23,6 +23,21 @@ export const GET_TRANSACTION = gql`
       amount
       location
       date
+      user {
+        _id
+        username
+        name
+        profilePicture
+      }
+    }
+  }
+`;
+
+export const GET_CATEGORY_STAISTICS = gql`
+  query GetCategoryStatistics {
+    categoryStatistics {
+      category
+      totalAmount
     }
   }
 `;

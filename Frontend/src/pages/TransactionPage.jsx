@@ -10,15 +10,16 @@ import { formatDate } from "../utils/formatDate";
 const TransactionPage = () => {
   const { id } = useParams();
   const [retrivedData, setRetrievedData] = useState();
-  const { data, loading } = useQuery(GET_TRANSACTION, {
+  const { data, loading, error } = useQuery(GET_TRANSACTION, {
     variables: {
       transactionId: id,
     },
   });
+
   const [updateTransaction, { loading: updateLoading }] = useMutation(
     UPDATE_TRANSACTION,
     {
-      refetchQueries: ["GetAllTransactions"],
+      refetchQueries: ["GetAllTransactions", "GetCategoryStatistics"],
     }
   );
   const [formData, setFormData] = useState({
