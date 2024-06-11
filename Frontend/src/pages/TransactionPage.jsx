@@ -20,8 +20,7 @@ const TransactionPage = () => {
     UPDATE_TRANSACTION,
     {
       refetchQueries: [
-        { query: "GetAllTransactions" },
-        { query: "GetCategoryStatistics" },
+        { query: ["GetAllTransactions", "GetCategoryStatistics"] },
       ],
     }
   );
