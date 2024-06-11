@@ -1,3 +1,5 @@
+import path from "path";
+
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
@@ -19,6 +21,8 @@ import { connectDB } from "./db/connect.js";
 
 dotenv.config();
 configurePassport();
+
+const __dirname = path.resolve();
 
 const app = express();
 
@@ -70,6 +74,12 @@ app.use(
     context: async ({ req, res }) => buildContext({ req, res }),
   })
 );
+
+app.use(express.static(path.join(__dirname, "Frontend/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "Frontend/dist", "index.html"));
+});
 
 await new Promise((resolve) => httpServer.listen({ port: 4000 }, resolve));
 
